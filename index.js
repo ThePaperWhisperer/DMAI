@@ -7,6 +7,8 @@
  * https://ai.google.dev/gemini-api/docs/get-started/node
  */
 var chars = [1,2,3,4,5,6,7,8,9,0];
+var chats = [];
+var sessions = [];
 const express = require("express");
 var app = express();
 const server = require("http").createServer(app);
@@ -47,14 +49,19 @@ const {
   
 
   io.on("connection", socket=> {
+    socket.on("history", h=> {
+      if(chats.findIndex(cha=> cha.room === Array.from(socket.rooms)[1]) > -1){
+        chats[chats.findIndex(cha=> cha.room = Array.from(socket.rooms)[1])] = {chat: h, room: Array.from(socket.rooms)[1]}
+      }
+  })
     socket.on("back", c=> {
-      socket.join(c)
+      socket.join(c);
     })
     socket.on("username", u=> {
       socket.nickname = u;
     })
     socket.on("submit", async text=> {
-      const result = await chatSession.sendMessage(text);
+      const result = await (sessions.find(s=> s.room === Array.from(socket.rooms)[1]).ses).sendMessage(text);
       io.to(Array.from(socket.rooms)[1]).emit("return", result.response.text());
       socket.to(Array.from(socket.rooms)[1]).broadcast.emit("original", (socket.nickname + ": " + text));
 
@@ -63,19 +70,19 @@ const {
       const result = await chatSession.sendMessage(c);
       socket.emit("talk", result.response.text());
     })
-    socket.on("chat", hist => {
-       chatSession = model.startChat({
-        generationConfig,
-     // safetySettings: Adjust safety settings
-     // See https://ai.google.dev/gemini-api/docs/safety-settings
-        history: hist
-      });
-    })
+   
     socket.on("gamestart", ()=> {
       var code = "";
       for(let i = 0; i< 20;i++){
         code+=chars[Math.floor(Math.random()* chars.length)]
       }
+      var chat = model.startChat({
+        generationConfig,
+     // safetySettings: Adjust safety settings
+     // See https://ai.google.dev/gemini-api/docs/safety-settings
+      history: chats.find(c=> c.room = Array.from(socket.rooms)[1]).chat.history
+      },);
+      sessions.push({room: Array.from(socket.rooms)[1], ses: chat})
       socket.join(code)
       socket.emit("game", code);
     })

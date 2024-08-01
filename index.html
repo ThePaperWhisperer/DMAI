@@ -154,21 +154,6 @@ var output = "";
     var lsname = "";
     var messages = [];
     var outputs = [];
-    for (let i = 0; i < localStorage.length; i++) {
-      const value = JSON.parse(localStorage.getItem("c" + i));
-      outputs.push(value.out);
-     var out = document.createElement("button");
-    out.id = i;
-    out.innerHTML = value.in;
-     out.onclick = (e)=> {
-      lsname = value.lsname;
-      message = value.messages;
-      document.querySelector("#output").innerHTML = value.out;
-      socket.emit("chat", value.history);
-      hist = value.history;
-     }
-       document.querySelector("#tabs").appendChild(out);  
-    }
     document.querySelector("#input").onkeydown = (e) => {
       if ((e.key == "Enter" && mobileAndTabletCheck()) || (e.key == "Enter" && (e.ctrlKey || e.metaKey))) {
         message++;
@@ -190,13 +175,9 @@ origin =   document.querySelector("#input").value;
       hist.push({role: "user", parts: [{text: start}]});
         hist.push({role: "model", parts: [{text: t}]});
         console.log(hist)
-      if(message === 1){
-        lsname = "c" + localStorage.length;
-      localStorage.setItem("c" + localStorage.length, JSON.stringify({out: document.querySelector("#output").innerHTML, in: start, messages: message, lsname: lsname, history: hist, code: code}));
-      }
-      else{
-        localStorage.setItem(lsname, JSON.stringify({out: document.querySelector("#output").innerHTML, in: start, messages: message, lsname: lsname, history: hist, code: code}));
-      }   
+      socket.emit("hist", JSON.stringify({out: document.querySelector("#output").innerHTML, in: start, messages: message, lsname: lsname, history: hist, code: code}));
+      
+      
     })
     document.addEventListener('DOMContentLoaded', init, false);
 function init() {
