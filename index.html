@@ -4,7 +4,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>StudyGPT</title>
+  <title>Dungeon Master AI</title>
   <link rel="manifest" href="pwa.webmanifest">
   <script type="importmap">
         {
@@ -155,7 +155,7 @@ recognition.onresult = (event) => {
 socket.on("talk", speech=> {
 var talk = new SpeechSynthesisUtterance(speech);
    window.speechSynthesis.speak(talk)
-   document.querySelector("#output").innerHTML += "<p class='gpt'><strong>StudyGPT said: </strong>"+ speech + "</p><br><br>";
+   document.querySelector("#output").innerHTML += "<p class='gpt'><strong>DMAI said: </strong>"+ speech + "</p><br><br>";
    hist.push({role: "model", parts: [{text: speech}]});
 talk.onend = ()=> {
   recognition.start()
