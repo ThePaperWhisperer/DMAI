@@ -6,6 +6,7 @@
  * See the getting started guide for more information
  * https://ai.google.dev/gemini-api/docs/get-started/node
  */
+var chars = [1,2,3,4,5,6,7,8,9,0];
 const express = require("express");
 var app = express();
 const server = require("http").createServer(app);
@@ -42,13 +43,21 @@ const {
       parts: [{text: "how can you help me?"}],
     }]
     },);
-  
+
   
 
   io.on("connection", socket=> {
+    socket.on("back", c=> {
+      socket.join(c)
+    })
+    socket.on("username", u=> {
+      socket.nickname = u;
+    })
     socket.on("submit", async text=> {
       const result = await chatSession.sendMessage(text);
-      socket.emit("return", result.response.text());
+      io.to(Array.from(socket.rooms)[1]).emit("return", result.response.text());
+      socket.to(Array.from(socket.rooms)[1]).broadcast.emit("original", (socket.nickname + ": " + text));
+
     })
     socket.on("audio", async c=> {
       const result = await chatSession.sendMessage(c);
@@ -61,6 +70,14 @@ const {
      // See https://ai.google.dev/gemini-api/docs/safety-settings
         history: hist
       });
+    })
+    socket.on("gamestart", ()=> {
+      var code = "";
+      for(let i = 0; i< 20;i++){
+        code+=chars[Math.floor(Math.random()* chars.length)]
+      }
+      socket.join(code)
+      socket.emit("game", code);
     })
   })
   server.listen(3000);
