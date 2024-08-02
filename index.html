@@ -131,6 +131,11 @@ if(localStorage.getItem("code")){
 document.querySelector("#start").onclick = ()=> {
 socket.emit("gamestart");
 }
+      document.querySelector("#join").onclick = ()=> {
+          code = prompt("Enter the room code.");
+          localStorage.setItem("code", code);
+      socket.emit("come", code);
+      }
 socket.on("game", g=> {
   code = g;
   alert("Your room code is " + g + ". This will not be shown again.");
@@ -190,6 +195,9 @@ function init() {
       });
   }
 }
+   socket.on("original", (t)=> {
+      document.querySelector("#output").innerHTML += "<div class='gpt'>" + t + "</div>" + "<br>"
+  })
   </script>
 
 </html>

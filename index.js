@@ -62,14 +62,17 @@ const {
     })
     socket.on("submit", async text=> {
       const result = await (sessions.find(s=> s.room === Array.from(socket.rooms)[1]).ses).sendMessage(text);
+        io.to(Array.from(socket.rooms)[1]).emit("original", (socket.nickname + ": " + text));
       io.to(Array.from(socket.rooms)[1]).emit("return", result.response.text());
-      socket.to(Array.from(socket.rooms)[1]).broadcast.emit("original", (socket.nickname + ": " + text));
 
     })
     socket.on("audio", async c=> {
       const result = await chatSession.sendMessage(c);
       socket.emit("talk", result.response.text());
     })
+      socket.on("come", code=> {
+          socket.join(code);
+      })
    
     socket.on("gamestart", ()=> {
       var code = "";
@@ -80,7 +83,10 @@ const {
         generationConfig,
      // safetySettings: Adjust safety settings
      // See https://ai.google.dev/gemini-api/docs/safety-settings
-      history: chats.find(c=> c.room = Array.from(socket.rooms)[1]).chat.history
+      history: [{role: "user", parts: [{text:
+          ""}]},
+                {role: "model", parts: [{text:
+      ""}]}]
       },);
       sessions.push({room: Array.from(socket.rooms)[1], ses: chat})
       socket.join(code)
