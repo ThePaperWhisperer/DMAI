@@ -52,7 +52,7 @@ const {
   io.on("connection", socket=> {
     socket.on("hist", h=> {
       if(chats.findIndex(cha=> cha.room === Array.from(socket.rooms)[1]) > -1){
-        chats[chats.findIndex(cha=> cha.room = Array.from(socket.rooms)[1])] = {chat: h.history, room: Array.from(socket.rooms)[1]}
+        chats[chats.findIndex(cha=> cha.room = Array.from(socket.rooms)[1])] = {chat: h.history, room: Array.from(socket.rooms)[1], output: h.out}
       }
       else{
         chats.push({chat: h.history, room: Array.from(socket.rooms)[1], output: h.out});
@@ -77,7 +77,7 @@ const {
     })
       socket.on("come", code=> {
           socket.join(code);
-          socket.emit("restore", chats.find(c => c.room === Array.from(socket.rooms)[1]).output)
+          socket.emit("restore", chats.find(c => c.room === Array.from(socket.rooms)[1]).output);
       })
    
     socket.on("gamestart", ()=> {
