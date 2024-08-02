@@ -9,6 +9,7 @@
 var chars = [1,2,3,4,5,6,7,8,9,0];
 var chats = [];
 var sessions = [];
+
 const express = require("express");
 var app = express();
 const server = require("http").createServer(app);
@@ -25,7 +26,7 @@ const {
   
   const model = genAI.getGenerativeModel({
     model: "gemini-1.5-flash",
-    systemInstruction: "This model is a dungeon master in D&D, and leads campaigns for people who are learning. To get information, the model first asks each player about their character sheet, one part at a time, so it can work around each person's strengths and weaknesses. Unless specified, the model goes into thorough detail and uses all of D&D 5e. The model also asks each character that is specified what they do every turn to keep it inclusive.",
+    systemInstruction: "This model is a dungeon master in D&D, and leads campaigns for people who are learning. To get information, the model first asks each player about their character sheet, one part at a time, so it can work around each person's strengths and weaknesses. Unless specified, the model goes into thorough detail and uses all of D&D 5e. The model also asks each character, one at a time, what they do every turn to keep it inclusive.",
   });
   
   const generationConfig = {
@@ -49,9 +50,13 @@ const {
   
 
   io.on("connection", socket=> {
-    socket.on("history", h=> {
+    socket.on("hist", h=> {
       if(chats.findIndex(cha=> cha.room === Array.from(socket.rooms)[1]) > -1){
-        chats[chats.findIndex(cha=> cha.room = Array.from(socket.rooms)[1])] = {chat: h, room: Array.from(socket.rooms)[1]}
+        chats[chats.findIndex(cha=> cha.room = Array.from(socket.rooms)[1])] = {chat: h.history, room: Array.from(socket.rooms)[1]}
+      }
+      else{
+        chats.push({chat: h.history, room: Array.from(socket.rooms)[1], output: h.out});
+
       }
   })
     socket.on("back", c=> {
@@ -72,11 +77,12 @@ const {
     })
       socket.on("come", code=> {
           socket.join(code);
+          socket.emit("restore", chats.find(c => c.room === Array.from(socket.rooms)[1]).output)
       })
    
     socket.on("gamestart", ()=> {
       var code = "";
-      for(let i = 0; i< 20;i++){
+      for(let i = 0; i < 12; i++){
         code+=chars[Math.floor(Math.random()* chars.length)]
       }
       var chat = model.startChat({

@@ -159,6 +159,11 @@ var output = "";
     var lsname = "";
     var messages = [];
     var outputs = [];
+    socket.on("restore", out => {
+      document.getElementById("output").innerHTML = out;
+    })
+    socket.emit("hist", JSON.stringify({out: document.querySelector("#output").innerHTML, in: start, messages: message, lsname: lsname, history: hist, code: code}));
+
     document.querySelector("#input").onkeydown = (e) => {
       if ((e.key == "Enter" && mobileAndTabletCheck()) || (e.key == "Enter" && (e.ctrlKey || e.metaKey))) {
         message++;
@@ -180,7 +185,7 @@ origin =   document.querySelector("#input").value;
       hist.push({role: "user", parts: [{text: start}]});
         hist.push({role: "model", parts: [{text: t}]});
         console.log(hist)
-      socket.emit("hist", JSON.stringify({out: document.querySelector("#output").innerHTML, in: start, messages: message, lsname: lsname, history: hist, code: code}));
+      socket.emit("hist", JSON.stringify({out: document.querySelector("#output").innerHTML, in: start, messages: message, out: output, lsname: lsname, history: hist, code: code}));
       
       
     })
